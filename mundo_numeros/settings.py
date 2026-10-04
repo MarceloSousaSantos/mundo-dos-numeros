@@ -1,4 +1,4 @@
-"""Configurações para desenvolvimento e produção."""
+"""Configuracoes para desenvolvimento e producao."""
 from pathlib import Path
 import os
 
@@ -9,6 +9,17 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-insecure-key-change-me")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development").lower()
 DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()]
+vercel_url = os.environ.get("VERCEL_URL")
+if vercel_url:
+    ALLOWED_HOSTS.append(vercel_url)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+if vercel_url:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{vercel_url}")
 
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
@@ -33,7 +44,11 @@ TEMPLATES = [{
 WSGI_APPLICATION = "mundo_numeros.wsgi.application"
 ASGI_APPLICATION = "mundo_numeros.asgi.application"
 
-DATABASES = {"default": dj_database_url.config(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)}
+database_url = os.environ.get("DATABASE_URL")
+if ENVIRONMENT == "production" and not database_url:
+    raise RuntimeError("DATABASE_URL deve ser definida em producao.")
+
+DATABASES = {"default": dj_database_url.config(default=database_url or f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)}
 AUTH_USER_MODEL = "accounts.User"
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -62,12 +77,13 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
-# Produção: o segredo é obrigatório e os cookies passam a exigir HTTPS.
+# Producao: o segredo e o banco sao obrigatorios e cookies exigem HTTPS.
 if ENVIRONMENT == "production":
     if SECRET_KEY == "dev-only-insecure-key-change-me":
-        raise RuntimeError("SECRET_KEY deve ser definida em produção.")
+        raise RuntimeError("SECRET_KEY deve ser definida em producao.")
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
