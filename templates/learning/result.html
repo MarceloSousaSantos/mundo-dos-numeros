@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<section class="lesson-card success"><h1>Muito bem, {{ child.nickname }}!</h1><p>Você concluiu {{ lesson.title }}.</p><p>XP: {{ child.total_xp }} · Moedas: {{ child.coins }}</p><p>Domínio: {{ mastery.score }}/100</p><a class="button" href="{% url 'learning_path' %}">Continuar</a></section>{% endblock %}

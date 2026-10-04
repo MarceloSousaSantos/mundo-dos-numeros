@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>.state-completed span{background:#53c7ad}.state-started span{background:#5b5bd6}.state-available span{background:#ff8b6a}.state-locked{opacity:.55;cursor:not-allowed}.state-locked span{background:#98a2b3}</style>
+<section class="child-head"><h1>Olá, {{ child.nickname }}!</h1><p>⭐ {{ child.total_xp }} XP · 🪙 {{ child.coins }} · ❤ {{ child.hearts }} · 🔥 {{ streak.count|default:0 }} dias</p></section>
+<section class="path"><h2>{{ path.name }}</h2>{% for card in lesson_cards %}{% if card.available %}<a class="lesson-node state-{{ card.state }}" href="{% url 'lesson' card.lesson.pk %}"><span>{{ card.lesson.order }}</span><strong>{{ card.lesson.title }}</strong><small>{% if card.state == 'completed' %}Concluída{% elif card.state == 'started' %}Em andamento{% else %}Disponível{% endif %}</small></a>{% else %}<div class="lesson-node state-locked" aria-label="Lição bloqueada"><span>🔒</span><strong>{{ card.lesson.title }}</strong><small>Complete a anterior</small></div>{% endif %}{% endfor %}</section>
+{% endblock %}

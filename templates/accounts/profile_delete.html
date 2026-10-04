@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<section class="auth-card"><h1>Excluir perfil</h1><p>Excluir o perfil de {{ child.nickname }} remove seu progresso e não pode ser desfeito.</p><form method="post">{% csrf_token %}<button class="secondary">Excluir perfil</button> <a href="{% url 'profiles' %}">Cancelar</a></form></section>{% endblock %}
